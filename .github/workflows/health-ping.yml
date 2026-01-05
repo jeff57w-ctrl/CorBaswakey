@@ -16,7 +16,7 @@ jobs:
       - name: Ping Backend 1
         run: |
           curl -X GET "${{ secrets.BACKEND_URL_1 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CorBaswakey }}" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
             -m 30 \
             --retry 3 \
             || echo "Backend 1 ping failed (this is OK if it's sleeping)"
@@ -24,7 +24,7 @@ jobs:
       - name: Ping Backend 2
         run: |
           curl -X GET "${{ secrets.BACKEND_URL_2 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CorBaswakey }}" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
             -m 30 \
             --retry 3 \
             || echo "Backend 2 ping failed (this is OK if it's sleeping)"
@@ -32,7 +32,7 @@ jobs:
       - name: Ping Backend 3
         run: |
           curl -X GET "${{ secrets.BACKEND_URL_3 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CorBaswakey }}" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
             -m 30 \
             --retry 3 \
             || echo "Backend 3 ping failed (this is OK if it's sleeping)"
@@ -43,21 +43,21 @@ jobs:
       - name: Verify Backend 1
         run: |
           curl -X GET "${{ secrets.BACKEND_URL_1 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CorBaswakey }}" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
             -m 30 \
             && echo "✅ Backend 1 is awake"
       
       - name: Verify Backend 2
         run: |
           curl -X GET "${{ secrets.BACKEND_URL_2 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CorBaswakey }}" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
             -m 30 \
             && echo "✅ Backend 2 is awake"
       
       - name: Verify Backend 3
         run: |
           curl -X GET "${{ secrets.BACKEND_URL_3 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CorBaswakey }}" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
             -m 30 \
             && echo "✅ Backend 3 is awake"
       
