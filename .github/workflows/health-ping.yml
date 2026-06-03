@@ -60,6 +60,79 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
             -m 30 \
             && echo "✅ Backend 3 is awake"
+
+
+
+
+
+
+
+
+
+      - name: Ping Backend 4
+        run: |
+          curl -X GET "${{ secrets.BACKEND_URL_4 }}/health" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
+            -m 30 \
+            --retry 3 \
+            || echo "Backend 4 ping failed (this is OK if it's sleeping)"
+      
+      - name: Ping Backend 5
+        run: |
+          curl -X GET "${{ secrets.BACKEND_URL_5 }}/health" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
+            -m 30 \
+            --retry 3 \
+            || echo "Backend 5 ping failed (this is OK if it's sleeping)"
+      
+      - name: Ping Frontend 1
+        run: |
+          curl -X GET "${{ secrets.FRONTEND_URL_1 }}/health" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
+            -m 30 \
+            --retry 3 \
+            || echo "Frontend 1 ping failed (this is OK if it's sleeping)"
+      
+      - name: Wait 2 minutes (allow backends to wake)
+        run: sleep 120
+      
+      - name: Verify Backend 4
+        run: |
+          curl -X GET "${{ secrets.BACKEND_URL_4 }}/health" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
+            -m 30 \
+            && echo "✅ Backend 4 is awake"
+      
+      - name: Verify Backend 5
+        run: |
+          curl -X GET "${{ secrets.BACKEND_URL_5 }}/health" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
+            -m 30 \
+            && echo "✅ Backend 5 is awake"
+      
+      - name: Verify Frontend 1
+        run: |
+          curl -X GET "${{ secrets.FRONTEND_URL_1 }}/health" \
+            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
+            -m 30 \
+            && echo "✅ Frontend 1 is awake"
+
+
+
+
+
+
+
+
+
+     
+
+
+
+
+
+
+
       
       - name: Send completion notification
         run: |
