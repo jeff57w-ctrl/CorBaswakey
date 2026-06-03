@@ -1,4 +1,4 @@
-name: Keep CorBas Backends Awake
+name: Keep HF Spaces Awake
 
 on:
   schedule:
@@ -9,132 +9,185 @@ on:
   workflow_dispatch:
 
 jobs:
-  ping-backends:
+  wake-hf-spaces:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Ping Backend 1
-        run: |
-          curl -X GET "${{ secrets.BACKEND_URL_1 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            --retry 3 \
-            || echo "Backend 1 ping failed (this is OK if it's sleeping)"
+      - name: Checkout repository
+        uses: actions/checkout@v4
       
-      - name: Ping Backend 2
+      - name: Initial Ping - Frontend Space (Public)
+        continue-on-error: true
         run: |
-          curl -X GET "${{ secrets.BACKEND_URL_2 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            --retry 3 \
-            || echo "Backend 2 ping failed (this is OK if it's sleeping)"
+          echo "🔔 Pinging Frontend Space..."
+          curl -X GET "https://mhmmohsen1-corbas-frontend.hf.space/health" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60 \
+            --connect-timeout 10 \
+            -v || echo "⚠️ Initial ping attempt failed (may be cold-starting)"
       
-      - name: Ping Backend 3
+      - name: Initial Ping - Backend 1
+        continue-on-error: true
         run: |
-          curl -X GET "${{ secrets.BACKEND_URL_3 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            --retry 3 \
-            || echo "Backend 3 ping failed (this is OK if it's sleeping)"
+          echo "🔔 Pinging Backend 1..."
+          curl -X GET "https://mhmmohsen1-backend.hf.space/health" \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60 \
+            --connect-timeout 10 \
+            -v || echo "⚠️ Initial ping attempt failed (may be cold-starting)"
       
-      - name: Wait 2 minutes (allow backends to wake)
-        run: sleep 120
+      - name: Initial Ping - Backend 2
+        continue-on-error: true
+        run: |
+          echo "🔔 Pinging Backend 2..."
+          curl -X GET "https://mhmmohsen1-backendd.hf.space/health" \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60 \
+            --connect-timeout 10 \
+            -v || echo "⚠️ Initial ping attempt failed (may be cold-starting)"
+      
+      - name: Initial Ping - Backend 3
+        continue-on-error: true
+        run: |
+          echo "🔔 Pinging Backend 3..."
+          curl -X GET "https://mhmmohsen1-backenddd.hf.space/health" \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60 \
+            --connect-timeout 10 \
+            -v || echo "⚠️ Initial ping attempt failed (may be cold-starting)"
+      
+      - name: Initial Ping - Backend 4
+        continue-on-error: true
+        run: |
+          echo "🔔 Pinging Backend 4..."
+          curl -X GET "https://mhmmohsen1-backendddd.hf.space/health" \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60 \
+            --connect-timeout 10 \
+            -v || echo "⚠️ Initial ping attempt failed (may be cold-starting)"
+      
+      - name: Initial Ping - Backend 5
+        continue-on-error: true
+        run: |
+          echo "🔔 Pinging Backend 5..."
+          curl -X GET "https://mhmmohsen1-backenddddd.hf.space/health" \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60 \
+            --connect-timeout 10 \
+            -v || echo "⚠️ Initial ping attempt failed (may be cold-starting)"
+      
+      - name: Wait 90 seconds for cold-start
+        run: sleep 90
+      
+      - name: Verify Frontend Space (Public)
+        run: |
+          echo "✅ Verifying Frontend Space..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://mhmmohsen1-corbas-frontend.hf.space/health" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60)
+          
+          if [ "$response" = "200" ] || [ "$response" = "404" ]; then
+            echo "✅ Frontend Space is responsive (HTTP $response)"
+          else
+            echo "❌ Frontend Space failed - HTTP $response"
+            exit 1
+          fi
       
       - name: Verify Backend 1
         run: |
-          curl -X GET "${{ secrets.BACKEND_URL_1 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            && echo "✅ Backend 1 is awake"
+          echo "✅ Verifying Backend 1..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://mhmmohsen1-backend.hf.space/health" \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60)
+          
+          if [ "$response" = "200" ] || [ "$response" = "404" ]; then
+            echo "✅ Backend 1 is responsive (HTTP $response)"
+          else
+            echo "❌ Backend 1 failed - HTTP $response"
+            exit 1
+          fi
       
       - name: Verify Backend 2
         run: |
-          curl -X GET "${{ secrets.BACKEND_URL_2 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            && echo "✅ Backend 2 is awake"
+          echo "✅ Verifying Backend 2..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://mhmmohsen1-backendd.hf.space/health" \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60)
+          
+          if [ "$response" = "200" ] || [ "$response" = "404" ]; then
+            echo "✅ Backend 2 is responsive (HTTP $response)"
+          else
+            echo "❌ Backend 2 failed - HTTP $response"
+            exit 1
+          fi
       
       - name: Verify Backend 3
         run: |
-          curl -X GET "${{ secrets.BACKEND_URL_3 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            && echo "✅ Backend 3 is awake"
-
-
-
-
-
-
-
-
-
-      - name: Ping Backend 4
-        run: |
-          curl -X GET "${{ secrets.BACKEND_URL_4 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            --retry 3 \
-            || echo "Backend 4 ping failed (this is OK if it's sleeping)"
-      
-      - name: Ping Backend 5
-        run: |
-          curl -X GET "${{ secrets.BACKEND_URL_5 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            --retry 3 \
-            || echo "Backend 5 ping failed (this is OK if it's sleeping)"
-      
-      - name: Ping Frontend 1
-        run: |
-          curl -X GET "${{ secrets.FRONTEND_URL_1 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            --retry 3 \
-            || echo "Frontend 1 ping failed (this is OK if it's sleeping)"
-      
-      - name: Wait 2 minutes (allow backends to wake)
-        run: sleep 120
+          echo "✅ Verifying Backend 3..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://mhmmohsen1-backenddd.hf.space/health" \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60)
+          
+          if [ "$response" = "200" ] || [ "$response" = "404" ]; then
+            echo "✅ Backend 3 is responsive (HTTP $response)"
+          else
+            echo "❌ Backend 3 failed - HTTP $response"
+            exit 1
+          fi
       
       - name: Verify Backend 4
         run: |
-          curl -X GET "${{ secrets.BACKEND_URL_4 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            && echo "✅ Backend 4 is awake"
+          echo "✅ Verifying Backend 4..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://mhmmohsen1-backendddd.hf.space/health" \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60)
+          
+          if [ "$response" = "200" ] || [ "$response" = "404" ]; then
+            echo "✅ Backend 4 is responsive (HTTP $response)"
+          else
+            echo "❌ Backend 4 failed - HTTP $response"
+            exit 1
+          fi
       
       - name: Verify Backend 5
         run: |
-          curl -X GET "${{ secrets.BACKEND_URL_5 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            && echo "✅ Backend 5 is awake"
+          echo "✅ Verifying Backend 5..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://mhmmohsen1-backenddddd.hf.space/health" \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions-CorBaswakey" \
+            -m 60)
+          
+          if [ "$response" = "200" ] || [ "$response" = "404" ]; then
+            echo "✅ Backend 5 is responsive (HTTP $response)"
+          else
+            echo "❌ Backend 5 failed - HTTP $response"
+            exit 1
+          fi
       
-      - name: Verify Frontend 1
+      - name: Success Summary
         run: |
-          curl -X GET "${{ secrets.FRONTEND_URL_1 }}/health" \
-            -H "Authorization: Bearer ${{ secrets.CORBASWAKEY }}" \
-            -m 30 \
-            && echo "✅ Frontend 1 is awake"
-
-
-
-
-
-
-
-
-
-     
-
-
-
-
-
-
-
+          echo "✅ All Hugging Face Spaces have been woken up successfully!"
+          echo "⏰ Wake-up completed at: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          echo "📊 Next scheduled wake-up: in 12 hours"
       
-      - name: Send completion notification
+      - name: Notify on Failure
+        if: failure()
         run: |
-          echo "Health ping completed at $(date)"
-          echo "All backends have been pinged to prevent sleep"
+          echo "❌ FAILURE: One or more Hugging Face Spaces failed to wake up"
+          echo "📋 Check the logs above for details"
+          echo "🔗 Workflow URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
